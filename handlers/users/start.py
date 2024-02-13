@@ -1,7 +1,8 @@
 import asyncpg
 from aiogram import types
+from aiogram.dispatcher.filters import state
 from aiogram.dispatcher.filters.builtin import CommandStart
-from aiogram.dispatcher import filters
+from aiogram.dispatcher import filters, FSMContext
 from keyboards.inline.menu_keyboard import menu
 from loader import dp, db
 

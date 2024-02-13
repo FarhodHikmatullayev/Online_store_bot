@@ -103,6 +103,10 @@ class Database:
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetch=True)
 
+    async def create_category(self, title):
+        sql = "INSERT INTO Categories (title) VALUES($1) returning *"
+        return await self.execute(sql, title, fetchrow=True)
+
     async def select_categories(self, **kwargs):
         sql = "SELECT * FROM Categories WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)

@@ -37,15 +37,45 @@ async def enter_name(message: types.Message, state: FSMContext):
         }
     )
     markup = await categories_keyboard()
-    await message.answer(text="Mahsulot uchun kategoriyalardan birini tanlang", reply_markup=markup)
+    await message.answer(text="Mahsulot uchun kategoriyalardan birini tanlang, \n"
+                              "Agar siz kiritmoqchi bo'lgan kategoriya mavjud bo'lmasa /yaratish ni bosing",
+                         reply_markup=markup
+                         )
     await Product.category.set()
+
+
+@dp.message_handler(Command('yaratish'), state=Product.category)
+async def create_category(message: types.Message):
+    text = "Yaratmoqchi bo'lgan kategoriyangiz nomini kiriting"
+    await message.answer(text=text)
+    await Product.new_category.set()
+
+
+@dp.message_handler(state=Product.new_category)
+async def create_category(message: types.Message, state: FSMContext):
+    new_category = message.text.capitalize()
+    await db.create_category(title=new_category)
+
+    title = new_category.lower()
+    category = await db.select_categories(title=title)
+    if category:
+        category = category[0]
+        await state.update_data(
+            {
+                'category_id': category['id']
+            }
+        )
+
+    text = "Kategoriya yaratildi"
+    text += "\nMahsulot uchun rasm yuboring"
+    await message.answer(text=text)
+    await Product.photo.set()
 
 
 @dp.message_handler(state=Product.category)
 async def choose_category(message: types.Message, state: FSMContext):
     title = message.text.lower()
     category = await db.select_categories(title=title)
-    print('category', category)
     if category:
         category = category[0]
         await state.update_data(
@@ -57,7 +87,10 @@ async def choose_category(message: types.Message, state: FSMContext):
         await Product.photo.set()
     else:
         markup = await categories_keyboard()
-        await message.answer(text="Mahsulot uchun kategoriyalardan birini tanlang", reply_markup=markup)
+        await message.answer(text="Mahsulot uchun kategoriyalardan birini tanlang\n"
+                                  "Agar siz kiritmoqchi bo'lgan kategoriya mavjud bo'lmasa /yaratish ni bosing",
+                             reply_markup=markup
+                             )
         await Product.category.set()
 
 
@@ -107,8 +140,6 @@ async def confirm_product(call: types.CallbackQuery, state: FSMContext):
     photo = data.get("photo")
     description = data.get("description")
 
-    print('category_id', category_id)
-
     product = await db.create_product(
         name=name,
         category_id=category_id,
@@ -137,7 +168,6 @@ async def enter_description(message: types.Message, state: FSMContext):
         }
     )
     data = await state.get_data()
-    print("data", data)
     name = data.get("name")
     category = data.get("category_id")
     price = data.get("price")
