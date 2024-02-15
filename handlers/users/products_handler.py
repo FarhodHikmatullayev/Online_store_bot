@@ -1,5 +1,6 @@
+from data import config
 from keyboards.inline.nested_product_keyboard import categories_keyboard, products_keyboard, product_keyboard, \
-    products_callback_data
+    products_callback_data, product_keyboard_for_admin
 from loader import db, dp, bot
 from aiogram.types import CallbackQuery
 from keyboards.inline.menu_keyboard import menu
@@ -28,7 +29,6 @@ async def open_products_list(call: CallbackQuery, category_id, **kwargs):
 
 
 async def show_product(call: CallbackQuery, category_id, product_id, **kwargs):
-    markup = await product_keyboard(category_id=category_id, product_id=product_id)
     product = await db.select_products(id=product_id)
     product = product[0]
     if product["photo"]:
@@ -38,7 +38,12 @@ async def show_product(call: CallbackQuery, category_id, product_id, **kwargs):
     text += f"{product['name']}\n"
     text += f"\nNarxi: {product['price']} so'm\n"
     text += f"\n  {product['description']}"
-    await call.message.edit_text(text=text, reply_markup=markup)
+    if str(call.message.chat.id) in config.ADMINS:
+        markup = await product_keyboard_for_admin(category_id=category_id, product_id=product_id)
+        await call.message.edit_text(text=text, reply_markup=markup)
+    else:
+        markup = await product_keyboard(category_id=category_id, product_id=product_id)
+        await call.message.edit_text(text=text, reply_markup=markup)
 
 
 @dp.callback_query_handler(products_callback_data.filter())

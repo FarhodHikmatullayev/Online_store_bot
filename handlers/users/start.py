@@ -7,8 +7,8 @@ from keyboards.inline.menu_keyboard import menu
 from loader import dp, db
 
 
-@dp.message_handler(CommandStart())
-async def bot_start(message: types.Message):
+@dp.message_handler(CommandStart(), state='*')
+async def bot_start(message: types.Message, state: FSMContext):
     try:
         user = await db.create_user(
             telegram_id=message.from_user.id,
@@ -21,3 +21,4 @@ async def bot_start(message: types.Message):
     text = f"Salom, {message.from_user.full_name}!\n"
     text += "Botimizga xush kelibsiz"
     await message.answer(text, reply_markup=menu)
+    await state.finish()

@@ -103,6 +103,19 @@ class Database:
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetch=True)
 
+    async def delete_product(self, id):
+        sql = "DELETE FROM Products WHERE id = $1"
+        result = None  # Define and assign a default value to result
+        async with self.pool.acquire() as connection:
+            connection: Connection
+            async with connection.transaction():
+                result = await connection.execute(sql, id)
+        return result
+
+    async def update_product(self, id, name, category_id, price, photo, description):
+        sql = "UPDATE Products SET name=$2, category_id=$3, price=$4, photo=$5, description=$6 WHERE id=$1"
+        return await self.execute(sql, id, name, category_id, price, photo, description, execute=True)
+
     async def create_category(self, title):
         sql = "INSERT INTO Categories (title) VALUES($1) returning *"
         return await self.execute(sql, title, fetchrow=True)

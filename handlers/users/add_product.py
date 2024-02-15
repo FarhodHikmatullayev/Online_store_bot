@@ -10,7 +10,7 @@ from keyboards.default.categories_list import categories_keyboard
 from keyboards.inline.confirmation import confirm_keyboard
 from keyboards.inline.menu_keyboard import menu
 from loader import dp, db
-from states.create_product import Product
+from states.product_states import Product
 from utils.photograph import photo_link
 
 
@@ -74,8 +74,9 @@ async def create_category(message: types.Message, state: FSMContext):
 
 @dp.message_handler(state=Product.category)
 async def choose_category(message: types.Message, state: FSMContext):
-    title = message.text.lower()
+    title = message.text
     category = await db.select_categories(title=title)
+    print('category', category)
     if category:
         category = category[0]
         await state.update_data(
