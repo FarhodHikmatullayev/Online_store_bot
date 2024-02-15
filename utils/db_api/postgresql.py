@@ -103,6 +103,16 @@ class Database:
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetch=True)
 
+    async def search_products_by_title(self, word):
+        sql = "SELECT * FROM Products WHERE name ILIKE $1"
+        word_with_wildcards = f"%{word}%"  # Add wildcard characters around the word
+        return await self.execute(sql, word_with_wildcards, fetch=True)
+
+        async with self.pool.acquire() as connection:
+            connection: Connection
+            products = await connection.fetch(sql, word_with_wildcards)
+        return products
+
     async def delete_product(self, id):
         sql = "DELETE FROM Products WHERE id = $1"
         result = None  # Define and assign a default value to result

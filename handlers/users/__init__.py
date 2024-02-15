@@ -1,4 +1,5 @@
 from . import start
+from . import inlinemode
 from . import products_handler
 from . import create_order
 from . import add_product
