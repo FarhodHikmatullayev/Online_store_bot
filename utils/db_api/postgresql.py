@@ -3,9 +3,7 @@
 #     return await self.execute(sql, full_name, username, telegram_id, fetchrow=True)
 #
 #
-# async def select_all_users(self):
-#     sql = "SELECT * FROM Users"
-#     return await self.execute(sql, fetch=True)
+
 #
 #
 # async def select_user(self, **kwargs):
@@ -88,6 +86,10 @@ class Database:
         sql = "SELECT * FROM Users WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)
         return await self.execute(sql, *parameters, fetch=True)
+
+    async def select_all_users(self):
+        sql = "SELECT * FROM Users"
+        return await self.execute(sql, fetch=True)
 
     async def select_users(self, **kwargs):
         sql = "SELECT * FROM Users WHERE "

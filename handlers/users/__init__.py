@@ -1,5 +1,6 @@
 from . import start
 from . import inlinemode
+from . import send_messages
 from . import products_handler
 from . import create_order
 from . import add_product
