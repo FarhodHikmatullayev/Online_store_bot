@@ -48,4 +48,5 @@ async def send_message(call: types.CallbackQuery, state: FSMContext):
     else:
         text = "Amaliyot bekor qilindi"
         await call.message.answer(text=text, reply_markup=back_menu_keyboard)
+    await state.finish()
     await bot.delete_message(call.message.chat.id, call.message.message_id)
